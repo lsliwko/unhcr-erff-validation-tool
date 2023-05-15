@@ -20,12 +20,16 @@ jobs:
         run: |
           mvn -B clean package --file pom.xml
 
-      - name: Set RELEASE_VERSION env variable
+      - name: Set version env variable
         run: |
           echo "VERSION_NAME=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+          
+      - name: Version found ${{env.VERSION_NAME}}
+        run: |
+          echo Version found: ${{env.VERSION_NAME}}
 
-      - name: Create release
+      - name: Create release (only for non-snapshot versions)
         if: ${{ !endsWith(env.VERSION_NAME, '-SNAPSHOT') }}
         run: |
-          echo Upload release version: v${{env.RELEASE_VERSION}}
-          gh release create v${{env.RELEASE_VERSION}} -t v${{env.RELEASE_VERSION}} target/unhcr-erff-validation-tool-${{env.RELEASE_VERSION}}.jar target/unhcr-erff-validation-tool-${{env.RELEASE_VERSION}}.jar.jar --generate-notes
+          echo Upload release version: v${{env.VERSION_NAME}}
+          gh release create v${{env.VERSION_NAME}} -t v${{env.VERSION_NAME}} target/unhcr-erff-validation-tool-${{env.VERSION_NAME}}.jar target/unhcr-erff-validation-tool-${{env.VERSION_NAME}}.jar.jar --generate-notes
