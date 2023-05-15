@@ -1,0 +1,30 @@
+name: Create Github Release
+
+on:
+  push:
+    branches: [ master ]
+
+permissions: write-all
+jobs:
+  build-and-release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/setup-java@v2
+        with:
+          java-version: '8'
+          cache: 'maven'
+
+      - name: Build project with Maven
+        run: |
+          mvn -B clean package --file pom.xml
+
+      - name: Set RELEASE_VERSION env variable
+        run: |
+          echo "VERSION_NAME=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
+
+      - name: Create release
+        if: ${{ !endsWith(env.VERSION_NAME, '-SNAPSHOT') }}
+        run: |
+          echo Upload release version: v${{env.RELEASE_VERSION}}
+          gh release create v${{env.RELEASE_VERSION}} -t v${{env.RELEASE_VERSION}} target/unhcr-erff-validation-tool-${{env.RELEASE_VERSION}}.jar target/unhcr-erff-validation-tool-${{env.RELEASE_VERSION}}.jar.jar --generate-notes
