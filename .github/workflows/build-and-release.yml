@@ -31,5 +31,6 @@ jobs:
       - name: Create release (only for non-snapshot versions)
         if: ${{ !endsWith(env.VERSION_NAME, '-SNAPSHOT') }}
         run: |
-          echo Upload release version: v${{env.VERSION_NAME}}
           gh release create v${{env.VERSION_NAME}} -t v${{env.VERSION_NAME}} target/unhcr-erff-validation-tool-${{env.VERSION_NAME}}.jar target/unhcr-erff-validation-tool-${{env.VERSION_NAME}}.jar.jar --generate-notes
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
