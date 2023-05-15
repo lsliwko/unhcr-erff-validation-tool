@@ -16,15 +16,18 @@ jobs:
           distribution: zulu
           cache: maven
           
-      - name: Set version variable [${{env.VERSION_NAME}}]
+      - name: Set version variable
         run: |
           echo "VERSION_NAME=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)" >> $GITHUB_ENV
-          echo Version found: ${{env.VERSION_NAME}}
+          
+      - name: Version found [${{env.VERSION_NAME}}]
+        run: |
+          echo Version found ${{env.VERSION_NAME}}
 
-      - name: Create release (only for non-snapshot versions)
+      - name: Create release (only non-snapshot versions)
         if: ${{ !endsWith(env.VERSION_NAME, '-SNAPSHOT') }}
         run: |
           mvn -B clean package --file pom.xml
-          gh release create v${{env.VERSION_NAME}} -t v${{env.VERSION_NAME}} target/unhcr-erff-validation-tool-${{env.VERSION_NAME}}.jar target/target/unhcr-erff-validation-tool-${{env.VERSION_NAME}}-full.jar --generate-notes
+          gh release create v${{env.VERSION_NAME}} -t v${{env.VERSION_NAME}} target/unhcr-erff-validation-tool-${{env.VERSION_NAME}}.jar target/unhcr-erff-validation-tool-${{env.VERSION_NAME}}-full.jar --generate-notes
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
